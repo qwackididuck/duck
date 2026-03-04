@@ -143,6 +143,10 @@ func ConstantBackoff(d time.Duration) BackoffStrategy {
 // Jitter prevents thundering herds when many clients retry simultaneously.
 func ExponentialBackoff(base time.Duration) BackoffStrategy {
 	return func(attempt int) time.Duration {
+		if base <= 0 {
+			return 0
+		}
+
 		maxCap := base * (1 << min(attempt, 10))            //nolint:mnd // prevent overflow past 10 doublings
 		jitter := time.Duration(rand.Int64N(int64(maxCap))) //nolint:gosec // G404: jitter does not require cryptographic randomness
 
