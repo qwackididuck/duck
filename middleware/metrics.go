@@ -42,7 +42,9 @@ type httpMetricsOptions struct {
 // Defaults to using r.URL.Path as-is.
 func WithPathCleaner(fn func(*http.Request) string) HTTPMetricsOption {
 	return func(o *httpMetricsOptions) {
-		o.pathCleaner = fn
+		if fn != nil {
+			o.pathCleaner = fn
+		}
 	}
 }
 
@@ -54,7 +56,9 @@ func WithPathCleaner(fn func(*http.Request) string) HTTPMetricsOption {
 // provider at construction time.
 func WithLabelsFromRequest(fn func(*http.Request) map[string]string) HTTPMetricsOption {
 	return func(o *httpMetricsOptions) {
-		o.labelsFromCtx = fn
+		if fn != nil {
+			o.labelsFromCtx = fn
+		}
 	}
 }
 
@@ -64,6 +68,10 @@ func WithLabelsFromRequest(fn func(*http.Request) map[string]string) HTTPMetrics
 // By default, the full r.URL.Path is used as the route label. Use
 // [WithPathCleaner] to normalise dynamic segments and avoid high cardinality.
 func HTTPMetrics(provider HTTPMetricsProvider, opts ...HTTPMetricsOption) func(http.Handler) http.Handler {
+	if provider == nil {
+		panic("duck/middleware: HTTPMetrics provider is nil")
+	}
+
 	o := &httpMetricsOptions{
 		pathCleaner:   func(r *http.Request) string { return r.URL.Path },
 		labelsFromCtx: func(_ *http.Request) map[string]string { return nil },
