@@ -194,5 +194,9 @@ func (m *Manager) handleLogoutAll(w http.ResponseWriter, r *http.Request) {
 // LogoutAll destroys all sessions for a user programmatically.
 // Use this for account deletion, password changes, or impersonation revocation.
 func (m *Manager) LogoutAll(ctx context.Context, userID string) error {
-	return fmt.Errorf("duck/oauth2: %w", m.opts.store.DeleteAllForUser(ctx, userID))
+	if err := m.opts.store.DeleteAllForUser(ctx, userID); err != nil {
+		return fmt.Errorf("duck/oauth2: %w", err)
+	}
+
+	return nil
 }
