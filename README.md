@@ -10,6 +10,8 @@
 [![golangci-lint](https://img.shields.io/badge/golangci--lint-v2.10.1-4B32C3?style=flat-square&logo=github-actions&logoColor=white)](https://github.com/golangci/golangci-lint/releases/tag/v2.10.1)
 [![Go Report Card](https://goreportcard.com/badge/github.com/qwackididuck/duck?style=flat-square)](https://goreportcard.com/report/github.com/qwackididuck/duck)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/qwackididuck/duck?utm_source=oss&utm_medium=github&utm_campaign=qwackididuck%2Fduck&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
+[![CodeRabbit](https://img.shields.io/badge/code%20review-CodeRabbit-orange?style=flat-square&logo=rabbit&logoColor=white)](https://coderabbit.ai)
 
 Each package is independent — pull in only what you need.
 
@@ -26,11 +28,11 @@ Duck covers the recurring concerns of a Go HTTP service without dictating your a
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              your service                                │
-├─────────────┬────────────┬────────────┬────────────┬─────────────────────┤
-│   server    │    log     │   config   │    jwt     │       oauth2        │
-│  graceful   │  slog  +   │  env vars  │ go-jose v4 │  Auth Code + PKCE   │
-│  shutdown   │  context   │  + files   │  + JWKS    │  session store      │
-├─────────────┴────────────┴────────────┴────────────┴─────────────────────┤
+├─────────────┬────────────┬────────────┬────────────┬────────────────────┤
+│   server    │    log     │   config   │    jwt     │       oauth2       │
+│  graceful   │  slog  +   │  env vars  │ go-jose v4 │  Auth Code + PKCE  │
+│  shutdown   │  context   │  + files   │  + JWKS    │  session store     │
+├─────────────┴────────────┴────────────┴────────────┴────────────────────┤
 │             middleware: logging · metrics · body limit · compress        │
 ├──────────────────────────────────────────────────────────────────────────┤
 │                     httpclient: retry · backoff · logging                │
@@ -976,6 +978,12 @@ Duck's sub-packages pull in their own dependencies independently. The table belo
 | `golang.org/x/oauth2`                 | latest  | `oauth2`                    |
 | `github.com/redis/go-redis/v9`        | v9      | `oauth2/store` *(optional)* |
 | `github.com/prometheus/client_golang` | latest  | `metrics` *(optional)*      |
+
+---
+
+## Code review
+
+Pull requests on this project are reviewed with [CodeRabbit](https://coderabbit.ai), an AI-powered code review tool. CodeRabbit provides automated reviews on every PR — catching logic issues, suggesting improvements, and enforcing consistency across the codebase.
 
 ---
 
