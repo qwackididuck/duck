@@ -28,11 +28,11 @@ Duck covers the recurring concerns of a Go HTTP service without dictating your a
 ```text
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              your service                                │
-├─────────────┬────────────┬────────────┬────────────┬────────────────────┤
-│   server    │    log     │   config   │    jwt     │       oauth2       │
-│  graceful   │  slog  +   │  env vars  │ go-jose v4 │  Auth Code + PKCE  │
-│  shutdown   │  context   │  + files   │  + JWKS    │  session store     │
-├─────────────┴────────────┴────────────┴────────────┴────────────────────┤
+├─────────────┬────────────┬────────────┬────────────┬─────────────────────┤
+│   server    │    log     │   config   │    jwt     │       oauth2        │
+│  graceful   │  slog  +   │  env vars  │ go-jose v4 │  Auth Code + PKCE   │
+│  shutdown   │  context   │  + files   │  + JWKS    │  session store      │
+├─────────────┴────────────┴────────────┴────────────┴─────────────────────┤
 │             middleware: logging · metrics · body limit · compress        │
 ├──────────────────────────────────────────────────────────────────────────┤
 │                     httpclient: retry · backoff · logging                │
@@ -646,7 +646,7 @@ OAuth2/OIDC authentication implementing the **Authorization Code + PKCE** flow. 
 
 #### Authorization Code + PKCE flow
 
-```
+```text
 Browser                    Your service                    Google / GitHub
    │                            │                                │
    │  GET /auth/google/login    │                                │
@@ -664,10 +664,10 @@ Browser                    Your service                    Google / GitHub
    │                            │  verify state == cookie ✓      │
    │                            │  exchange code + verifier ────>│
    │                            │<─── access_token + id_token ───│
-   │                            │  extract user identity          │
+   │                            │  extract user identity         │
    │                            │  call OnLogin() → upsert user  │
-   │                            │  create session in store        │
-   │                            │  set session cookie             │
+   │                            │  create session in store       │
+   │                            │  set session cookie            │
    │  302 → /dashboard          │                                │
    │<───────────────────────────│                                │
 ```
