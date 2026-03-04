@@ -63,6 +63,10 @@ func WithTimeout(d time.Duration) Option {
 // Defaults to [slog.Default].
 func WithLogger(logger *slog.Logger) Option {
 	return func(o *options) {
+		if logger == nil {
+			logger = slog.Default()
+		}
+
 		o.logger = logger
 	}
 }
