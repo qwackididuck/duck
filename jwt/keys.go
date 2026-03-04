@@ -68,6 +68,12 @@ func WithHMACKey(alg Algorithm, secret []byte) (KeyProvider, error) {
 // publicKey is used for verification.
 // alg must be one of RS256, RS384, or RS512.
 func WithRSAKey(alg Algorithm, privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey) (KeyProvider, error) {
+	switch alg {
+	case RS256, RS384, RS512:
+	default:
+		return nil, fmt.Errorf("duck/jwt: unsupported RSA algorithm %q", alg)
+	}
+
 	if privateKey == nil && publicKey == nil {
 		return nil, errors.New("duck/jwt: at least one of privateKey or publicKey must be provided")
 	}
@@ -78,7 +84,7 @@ func WithRSAKey(alg Algorithm, privateKey *rsa.PrivateKey, publicKey *rsa.Public
 	}
 
 	var verKey any = publicKey
-	if publicKey == nil && privateKey != nil {
+	if publicKey == nil {
 		verKey = &privateKey.PublicKey
 	}
 
@@ -94,6 +100,12 @@ func WithRSAKey(alg Algorithm, privateKey *rsa.PrivateKey, publicKey *rsa.Public
 // publicKey is used for verification.
 // alg must be one of ES256, ES384, or ES512.
 func WithECDSAKey(alg Algorithm, privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey) (KeyProvider, error) {
+	switch alg {
+	case ES256, ES384, ES512:
+	default:
+		return nil, fmt.Errorf("duck/jwt: unsupported ECDSA algorithm %q", alg)
+	}
+
 	if privateKey == nil && publicKey == nil {
 		return nil, errors.New("duck/jwt: at least one of privateKey or publicKey must be provided")
 	}
@@ -104,7 +116,7 @@ func WithECDSAKey(alg Algorithm, privateKey *ecdsa.PrivateKey, publicKey *ecdsa.
 	}
 
 	var verKey any = publicKey
-	if publicKey == nil && privateKey != nil {
+	if publicKey == nil {
 		verKey = &privateKey.PublicKey
 	}
 
@@ -119,6 +131,10 @@ func WithECDSAKey(alg Algorithm, privateKey *ecdsa.PrivateKey, publicKey *ecdsa.
 // claims must be JSON-serializable. Embed [josejwt.Claims] for standard
 // registered claims (sub, exp, iss, aud, etc.).
 func Generate(claims any, provider KeyProvider) (string, error) {
+	if provider == nil {
+		return "", errors.New("duck/jwt: provider is nil")
+	}
+
 	signKey, alg, err := provider.SigningKey()
 	if err != nil {
 		return "", fmt.Errorf("duck/jwt: get signing key: %w", err)
