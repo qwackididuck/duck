@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 // generateRequestID generates a cryptographically random 16-byte hex string
@@ -12,7 +14,10 @@ import (
 //nolint:mnd // 16 bytes is a common length for request IDs, and hex encoding is widely used for readability.
 func generateRequestID() string {
 	b := make([]byte, 16)
-	_, _ = rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		// Fallback keeps IDs non-empty and reduces collision risk if CSPRNG fails.
+		return strconv.FormatInt(time.Now().UnixNano(), 16)
+	}
 
 	return hex.EncodeToString(b)
 }
