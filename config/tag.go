@@ -6,7 +6,7 @@ import (
 
 // fieldMeta holds the parsed duck tag metadata for a single struct field.
 type fieldMeta struct {
-	mandatory  bool
+	required   bool
 	panic      bool
 	hasDefault bool
 	defaultV   string
@@ -62,8 +62,8 @@ func parseDuckTag(tag string) fieldMeta {
 		directive = strings.TrimSpace(directive)
 
 		switch {
-		case directive == "mandatory":
-			meta.mandatory = true
+		case directive == "required":
+			meta.required = true
 
 		case directive == "panic":
 			meta.panic = true

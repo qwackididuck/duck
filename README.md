@@ -285,8 +285,8 @@ type Config struct {
     LogLevel        string        `duck:"env=LOG_LEVEL,default=info"`
     ShutdownTimeout time.Duration `duck:"env=SHUTDOWN_TIMEOUT,default=30s"`
 
-    // mandatory — Load returns an error if the variable is not set
-    DatabaseURL string `duck:"env=DATABASE_URL,mandatory"`
+    // required — Load returns an error if the variable is not set
+    DatabaseURL string `duck:"env=DATABASE_URL,required"`
 
     // comma-separated from env:  ALLOWED_ORIGINS=https://a.com,https://b.com
     AllowedOrigins []string `duck:"env=ALLOWED_ORIGINS,sep=,"`
@@ -316,7 +316,7 @@ if err != nil {
 
 Resolution order: **environment variables** → **config file** → **tag defaults**
 
-> If a mandatory field is absent from all sources, `Load` returns an error wrapping `config.ErrMissingMandatory`.
+> If a required field is absent from all sources, `Load` returns an error wrapping `config.ErrMissingMandatory`.
 
 #### Tag reference
 
@@ -324,7 +324,7 @@ Resolution order: **environment variables** → **config file** → **tag defaul
 |---|---|---|---|
 | `env=NAME` | string | Environment variable name | `env=DATABASE_URL` |
 | `default=value` | any | Fallback value | `default=:8080`, `default=30s` |
-| `mandatory` | flag | Error if not resolved | `mandatory` |
+| `required` | flag | Error if not resolved | `required` |
 | `sep=char` | slice only | Separator for env var parsing | `sep=,` |
 
 > `sep=` applies only to env var values. JSON/YAML files use native array syntax and ignore `sep=`.
@@ -933,7 +933,7 @@ Runnable examples in [`examples/`](./examples). Each is self-contained and can b
 | Example                                            | What it covers                                                          |
 |----------------------------------------------------|-------------------------------------------------------------------------|
 | [`examples/server`](./examples/server)             | Server, health checks, graceful shutdown, background goroutines         |
-| [`examples/config`](./examples/config)             | Env vars, YAML file, mandatory fields, slice parsing with `sep=`        |
+| [`examples/config`](./examples/config)             | Env vars, YAML file, required fields, slice parsing with `sep=`        |
 | [`examples/log`](./examples/log)                   | Context propagation through multiple handler layers                     |
 | [`examples/statemachine`](./examples/statemachine) | Order pipeline — happy path, validation failure, timeout cancellation   |
 | [`examples/middleware`](./examples/middleware)     | Full chain with Prometheus, body obfuscation, and chi route patterns    |

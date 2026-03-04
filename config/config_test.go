@@ -27,10 +27,10 @@ func writeFile(t *testing.T, name, content string) string {
 // --- Shared config types ---
 
 type stringConfig struct {
-	Port    string `duck:"default=8080"                          env:"PORT"`
-	DBUrl   string `duck:"mandatory"                             env:"DB_URL"`
-	AppName string `duck:"mandatory,errMsg=APP_NAME is required" env:"APP_NAME"`
-	Debug   string `duck:"default=false"                         env:"DEBUG"`
+	Port    string `duck:"default=8080"                         env:"PORT"`
+	DBUrl   string `duck:"required"                             env:"DB_URL"`
+	AppName string `duck:"required,errMsg=APP_NAME is required" env:"APP_NAME"`
+	Debug   string `duck:"default=false"                        env:"DEBUG"`
 }
 
 type typedConfig struct {
@@ -38,7 +38,7 @@ type typedConfig struct {
 	Debug   bool          `duck:"default=false" env:"DEBUG"`
 	Timeout time.Duration `duck:"default=30s"   env:"TIMEOUT"`
 	Rate    float64       `duck:"default=1.5"   env:"RATE"`
-	Secret  []byte        `duck:"mandatory"     env:"SECRET"` //nolint:gosec
+	Secret  []byte        `duck:"required"      env:"SECRET"` //nolint:gosec
 	Workers uint          `duck:"default=4"     env:"WORKERS"`
 }
 
@@ -132,12 +132,12 @@ func TestLoad_fromEnv(t *testing.T) {
 			},
 		},
 		{
-			name:    "missing mandatory field returns ErrMissingMandatory",
+			name:    "missing required field returns ErrMissingMandatory",
 			env:     map[string]string{},
 			wantErr: config.ErrMissingMandatory,
 		},
 		{
-			name:    "missing mandatory with custom errMsg",
+			name:    "missing required with custom errMsg",
 			env:     map[string]string{"DB_URL": "postgres://localhost/db"},
 			wantErr: config.ErrMissingMandatory,
 		},
@@ -282,11 +282,11 @@ func TestLoad_panicBehavior(t *testing.T) {
 		wantPanic bool
 	}{
 		{
-			name:     "mandatory+panic panics on missing field",
+			name:     "required+panic panics on missing field",
 			setupEnv: func(_ *testing.T) {},
 			load: func() error {
 				type panicConfig struct {
-					Secret string `duck:"mandatory,panic" env:"PANIC_SECRET"` //nolint:gosec
+					Secret string `duck:"required,panic" env:"PANIC_SECRET"` //nolint:gosec
 				}
 
 				_, err := config.Load[panicConfig](config.WithEnv())
@@ -623,12 +623,12 @@ func TestMustLoad(t *testing.T) {
 		wantPanic bool
 	}{
 		{
-			name:      "panics on missing mandatory field",
+			name:      "panics on missing required field",
 			setupEnv:  func(_ *testing.T) {},
 			wantPanic: true,
 		},
 		{
-			name: "succeeds with all mandatory fields set",
+			name: "succeeds with all required fields set",
 			setupEnv: func(t *testing.T) {
 				t.Helper()
 				t.Setenv("MUSTLOAD_DB_URL", "postgres://localhost/db")
@@ -643,8 +643,8 @@ func TestMustLoad(t *testing.T) {
 			tc.setupEnv(t)
 
 			type mustConfig struct {
-				DBUrl   string `duck:"mandatory" env:"MUSTLOAD_DB_URL"`
-				AppName string `duck:"mandatory" env:"MUSTLOAD_APP_NAME"`
+				DBUrl   string `duck:"required" env:"MUSTLOAD_DB_URL"`
+				AppName string `duck:"required" env:"MUSTLOAD_APP_NAME"`
 			}
 
 			if tc.wantPanic {

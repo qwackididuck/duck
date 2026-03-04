@@ -138,7 +138,7 @@ func populateField(o *options, fieldVal reflect.Value, field reflect.StructField
 		return setField(fieldVal, meta.defaultV, meta, field.Name)
 	}
 
-	if meta.mandatory {
+	if meta.required {
 		msg := buildErrMsg(meta, field.Name)
 		if meta.panic {
 			panic("duck/config: " + msg)
