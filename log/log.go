@@ -92,6 +92,8 @@ func New(opts ...Option) *slog.Logger {
 		handler = slog.NewTextHandler(o.output, handlerOpts)
 	case FormatJSON:
 		handler = slog.NewJSONHandler(o.output, handlerOpts)
+	default:
+		handler = slog.NewJSONHandler(o.output, handlerOpts)
 	}
 
 	return slog.New(handler)
