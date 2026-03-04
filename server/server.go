@@ -189,6 +189,10 @@ func (s *Server) shutdown() error {
 
 // validate checks that the required options are set.
 func validate(o *options) error {
+	if o.baseCtx == nil {
+		return errors.New("base context must not be nil")
+	}
+
 	if o.addr == "" {
 		return errors.New("addr must not be empty")
 	}
