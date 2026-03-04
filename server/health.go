@@ -88,10 +88,12 @@ func WithKOStatus(code int) HealthCheckOption {
 // Register dependencies for the /ready endpoint via [WithDependency].
 func WithHealthChecks(serviceName string, opts ...HealthCheckOption) Option {
 	return func(o *options) {
-		hc := &HealthChecks{
-			serviceName: serviceName,
-			koStatus:    http.StatusOK,
+		hc := o.healthChecks
+		if hc == nil {
+			hc = &HealthChecks{koStatus: http.StatusOK}
 		}
+
+		hc.serviceName = serviceName
 
 		for _, opt := range opts {
 			opt(hc)
@@ -108,8 +110,12 @@ func WithHealthChecks(serviceName string, opts ...HealthCheckOption) Option {
 //	server.WithDependency(&RedisChecker{client: rdb})
 func WithDependency(stater Stater) Option {
 	return func(o *options) {
-		if o.healthChecks == nil {
+		if stater == nil {
 			return
+		}
+
+		if o.healthChecks == nil {
+			o.healthChecks = &HealthChecks{koStatus: http.StatusOK}
 		}
 
 		o.healthChecks.staters = append(o.healthChecks.staters, stater)
