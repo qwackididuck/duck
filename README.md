@@ -7,7 +7,7 @@
 **A modular toolkit for building production-ready Go HTTP services.**
 
 [![Go version](https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/doc/go1.26)
-[![golangci-lint](https://img.shields.io/badge/golangci--lint-v2.10.1-4B32C3?style=flat-square&logo=github-actions&logoColor=white)](https://github.com/golangci/golangci-lint/releases/tag/v2.10.1)
+[![golangci-lint](https://img.shields.io/badge/golangci--lint-latest-4B32C3?style=flat-square&logo=github-actions&logoColor=white)](https://github.com/golangci/golangci-lint/releases/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/qwackididuck/duck?style=flat-square)](https://goreportcard.com/report/github.com/qwackididuck/duck)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
 [![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/qwackididuck/duck?utm_source=oss&utm_medium=github&utm_campaign=qwackididuck%2Fduck&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
@@ -25,7 +25,7 @@ Each package is independent — pull in only what you need.
 
 Duck covers the recurring concerns of a Go HTTP service without dictating your architecture. Every package is a standalone import. There is no core you must adopt to use any one piece.
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              your service                                │
 ├─────────────┬────────────┬────────────┬────────────┬────────────────────┤
@@ -903,7 +903,7 @@ Conditions are OR-ed — the request is retried if **any** condition is true.
 | `RetryOnIdempotentMethods()` | Any error on GET, PUT, DELETE, HEAD, OPTIONS |
 | `RetryIf(fn)` | Custom predicate — `func(*http.Response, error) bool` |
 
-> **Safety guarantee:** `POST` and `PATCH` are never retried on HTTP status errors — only on network errors where the server is guaranteed not to have processed the request, preventing duplicate side effects.
+> **Safety note:** `POST` and `PATCH` are never retried when a response is received. They may be retried on network errors, but network failures do not guarantee the server did not process the request. Use idempotency keys or other safeguards for operations where duplicate processing is unsafe.
 
 #### Backoff strategies
 
@@ -962,10 +962,10 @@ Runnable examples in [`examples/`](./examples). Each is self-contained and can b
 
 ## Requirements
 
-|               | Version     |
-|---------------|-------------|
-| Go            | **1.26+**   |
-| golangci-lint | **v2.10.1** |
+|               | Version      |
+|---------------|--------------|
+| Go            | **1.26+**    |
+| golangci-lint | **v2.10.1+** |
 
 ### Dependencies
 

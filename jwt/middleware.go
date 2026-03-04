@@ -48,6 +48,12 @@ func Middleware[C any](provider KeyProvider, opts ...MiddlewareOption) func(http
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if provider == nil {
+				http.Error(w, "jwt middleware misconfigured: provider is nil", http.StatusInternalServerError)
+
+				return
+			}
+
 			tokenStr, err := extractBearer(r)
 			if err != nil {
 				if o.optional && errors.Is(err, errNoToken) {

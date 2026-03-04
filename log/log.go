@@ -62,6 +62,12 @@ func WithFormat(format Format) Option {
 // Defaults to [os.Stdout].
 func WithOutput(w io.Writer) Option {
 	return func(o *options) {
+		if w == nil {
+			o.output = os.Stdout
+
+			return
+		}
+
 		o.output = w
 	}
 }
@@ -77,7 +83,9 @@ func WithOutput(w io.Writer) Option {
 func New(opts ...Option) *slog.Logger {
 	o := defaultOptions()
 	for _, opt := range opts {
-		opt(&o)
+		if opt != nil {
+			opt(&o)
+		}
 	}
 
 	handlerOpts := &slog.HandlerOptions{

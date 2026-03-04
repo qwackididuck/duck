@@ -79,6 +79,10 @@ func WithClientObfuscatedBodyFields(fields ...string) LoggingOption {
 // so the downstream service can correlate logs across services.
 func WithLogging(logger *slog.Logger, opts ...LoggingOption) Option {
 	return func(o *clientOptions) {
+		if logger == nil {
+			logger = slog.Default()
+		}
+
 		lo := &loggingTransportOptions{
 			logger:           logger,
 			maxBodySize:      1024,
@@ -258,7 +262,7 @@ func obfuscateClientBody(body string, fields map[string]struct{}) string {
 
 	result, err := json.Marshal(raw)
 	if err != nil {
-		return body
+		return obfuscatedPlaceholder // fallback to avoid logging sensitive data if marshaling fails
 	}
 
 	return string(result)

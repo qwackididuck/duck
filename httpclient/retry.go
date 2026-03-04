@@ -41,7 +41,9 @@ func WithMaxAttempts(n int) RetryOption {
 // Defaults to [ExponentialBackoff] with a 100ms base.
 func WithBackoff(s BackoffStrategy) RetryOption {
 	return func(o *retryOptions) {
-		o.backoff = s
+		if s == nil {
+			s = NoBackoff()
+		}
 	}
 }
 
@@ -249,7 +251,7 @@ func (t *retryTransport) wait(ctx context.Context, attempt int) error {
 // are never retried when a response was received, regardless of conditions.
 func (t *retryTransport) shouldRetry(req *http.Request, resp *http.Response, err error) bool {
 	for _, cond := range t.opts.conditions {
-		if !cond(req, resp, err) {
+		if cond == nil || !cond(req, resp, err) {
 			continue
 		}
 
