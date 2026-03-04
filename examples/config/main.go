@@ -21,8 +21,8 @@ type AppConfig struct {
 	// Loaded from SHUTDOWN_TIMEOUT env var, duration parsing included
 	ShutdownTimeout time.Duration `duck:"env=SHUTDOWN_TIMEOUT,default=30s"`
 
-	// Mandatory — Load returns an error if DATABASE_URL is not set
-	DatabaseURL string `duck:"env=DATABASE_URL,mandatory"`
+	// Required — Load returns an error if DATABASE_URL is not set
+	DatabaseURL string `duck:"env=DATABASE_URL,required"`
 
 	// Comma-separated list from env: TAGS=api,backend,v2
 	Tags []string `duck:"env=TAGS,sep=,"`
