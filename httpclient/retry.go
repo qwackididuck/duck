@@ -40,7 +40,7 @@ func WithMaxAttempts(n int) RetryOption {
 // WithBackoff sets the backoff strategy between retry attempts.
 // Defaults to [ExponentialBackoff] with a 100ms base.
 func WithBackoff(s BackoffStrategy) RetryOption {
-	return func(o *retryOptions) {
+	return func(_ *retryOptions) {
 		if s == nil {
 			s = NoBackoff()
 		}

@@ -82,6 +82,7 @@ func WithOutput(w io.Writer) Option {
 //	)
 func New(opts ...Option) *slog.Logger {
 	o := defaultOptions()
+
 	for _, opt := range opts {
 		if opt != nil {
 			opt(&o)
