@@ -172,19 +172,25 @@ func TestClaimsFromContext(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		setupCtx  func() context.Context
+		setupCtx  func(t *testing.T) context.Context
 		wantFound bool
 		wantRole  string
 	}{
 		{
 			name: "claims present in context",
-			setupCtx: func() context.Context {
+			setupCtx: func(t *testing.T) context.Context {
+				t.Helper()
+
 				provider, err := duckjwt.WithHMACKey(duckjwt.HS256, testSecretHS256)
 				if err != nil {
 					t.Fatalf("WithHMACKey: %v", err)
 				}
 
-				token, _ := duckjwt.Generate(makeClaims("u1", "acme", "admin"), provider)
+				token, err := duckjwt.Generate(makeClaims("u1", "acme", "admin"), provider)
+				if err != nil {
+					t.Fatalf("Generate: %v", err)
+				}
+
 				req := httptest.NewRequest(http.MethodGet, "/", http.NoBody)
 				req.Header.Set("Authorization", "Bearer "+token)
 
@@ -204,7 +210,7 @@ func TestClaimsFromContext(t *testing.T) {
 		},
 		{
 			name:      "empty context returns not found",
-			setupCtx:  context.Background,
+			setupCtx:  func(_ *testing.T) context.Context { return context.Background() },
 			wantFound: false,
 		},
 	}
@@ -213,9 +219,9 @@ func TestClaimsFromContext(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := tc.setupCtx()
+			ctx := tc.setupCtx(t)
 			if ctx == nil {
-				t.Skip("context not captured (middleware did not call handler)")
+				t.Fatal("context not captured (middleware did not call handler)")
 			}
 
 			claims, ok := duckjwt.ClaimsFromContext[appClaims](ctx)
