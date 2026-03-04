@@ -8,10 +8,9 @@
 
 [![Go version](https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/doc/go1.26)
 [![golangci-lint](https://img.shields.io/badge/golangci--lint-latest-4B32C3?style=flat-square&logo=github-actions&logoColor=white)](https://github.com/golangci/golangci-lint/releases/)
-[![Go Report Card](https://goreportcard.com/badge/github.com/qwackididuck/duck?style=flat-square)](https://goreportcard.com/report/github.com/qwackididuck/duck)
+[![Go Report Card](https://goreportcard.com/badge/github.com/qwackididuck/duck)](https://goreportcard.com/report/github.com/qwackididuck/duck)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
 [![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/qwackididuck/duck?utm_source=oss&utm_medium=github&utm_campaign=qwackididuck%2Fduck&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
-[![CodeRabbit](https://img.shields.io/badge/code%20review-CodeRabbit-orange?style=flat-square&logo=rabbit&logoColor=white)](https://coderabbit.ai)
 
 Each package is independent — pull in only what you need.
 
