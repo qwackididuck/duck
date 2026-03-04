@@ -1,6 +1,9 @@
 package jwt
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // multiKeyProvider is a KeyProvider that combines multiple providers.
 // The first provider is used for signing; all providers are tried for
@@ -28,6 +31,10 @@ func NewMultiKeyProvider(primary KeyProvider, fallbacks ...KeyProvider) KeyProvi
 }
 
 func (m *multiKeyProvider) SigningKey() (any, Algorithm, error) {
+	if len(m.providers) == 0 || m.providers[0] == nil {
+		return nil, "", errors.New("duck/jwt: primary provider is nil")
+	}
+
 	return m.providers[0].SigningKey()
 }
 
@@ -35,6 +42,10 @@ func (m *multiKeyProvider) VerificationKeys() ([]VerificationKey, error) {
 	var all []VerificationKey
 
 	for i, p := range m.providers {
+		if p == nil {
+			return nil, fmt.Errorf("provider %d is nil", i)
+		}
+
 		keys, err := p.VerificationKeys()
 		if err != nil {
 			return nil, fmt.Errorf("provider %d verification keys: %w", i, err)
