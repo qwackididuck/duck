@@ -11,10 +11,9 @@ import (
 )
 
 // RetryCondition is a function that decides whether a request should be
-// retried based on the response and error from the previous attempt.
-// Both resp and err may be non-nil if the server responded but with an error
-// status — resp must be drained and closed by the caller if non-nil.
-type RetryCondition func(resp *http.Response, err error) bool
+// retried based on the original request, the response, and the error from
+// the previous attempt. req is always non-nil. resp is nil on network errors.
+type RetryCondition func(req *http.Request, resp *http.Response, err error) bool
 
 // retryOptions holds the retry configuration.
 type retryOptions struct {
@@ -80,7 +79,7 @@ func RetryOnStatusCodes(codes ...int) RetryCondition {
 		set[c] = struct{}{}
 	}
 
-	return func(resp *http.Response, _ error) bool {
+	return func(_ *http.Request, resp *http.Response, _ error) bool {
 		if resp == nil {
 			return false
 		}
@@ -94,14 +93,17 @@ func RetryOnStatusCodes(codes ...int) RetryCondition {
 // RetryOnNetworkErrors returns a RetryCondition that retries on network-level
 // errors (timeout, connection refused, EOF). Does not retry on HTTP errors.
 func RetryOnNetworkErrors() RetryCondition {
-	return func(_ *http.Response, err error) bool {
+	return func(_ *http.Request, _ *http.Response, err error) bool {
 		return err != nil
 	}
 }
 
-// RetryOnIdempotentMethods returns a RetryCondition that only retries if the
-// request method is idempotent (GET, HEAD, OPTIONS, PUT, DELETE).
-// Combine with other conditions via [RetryIf] to restrict retries to safe methods.
+// RetryOnIdempotentMethods returns a RetryCondition that retries any error
+// (network or HTTP) only when the request method is idempotent
+// (GET, HEAD, OPTIONS, PUT, DELETE).
+//
+// Safe to combine with other conditions — it never triggers on POST or PATCH,
+// preventing accidental duplication of non-idempotent side effects.
 func RetryOnIdempotentMethods() RetryCondition {
 	idempotent := map[string]struct{}{
 		http.MethodGet:     {},
@@ -111,20 +113,15 @@ func RetryOnIdempotentMethods() RetryCondition {
 		http.MethodDelete:  {},
 	}
 
-	return func(_ *http.Response, err error) bool {
-		// This condition is meant to be used as a gate — the caller must
-		// combine it with other conditions. On its own it always returns true
-		// for idempotent methods.
-		_ = err
-
-		_, ok := idempotent["GET"] // placeholder — actual method checked in retryTransport
+	return func(req *http.Request, _ *http.Response, _ error) bool {
+		_, ok := idempotent[req.Method]
 
 		return ok
 	}
 }
 
 // RetryIf returns a RetryCondition from a custom function.
-func RetryIf(fn func(resp *http.Response, err error) bool) RetryCondition {
+func RetryIf(fn func(req *http.Request, resp *http.Response, err error) bool) RetryCondition {
 	return fn
 }
 
@@ -243,23 +240,26 @@ func (t *retryTransport) wait(ctx context.Context, attempt int) error {
 }
 
 // shouldRetry returns true if any configured condition triggers a retry.
+// Each condition now receives the request so it can make method-aware decisions.
+// The built-in safety rule still applies: non-idempotent methods (POST, PATCH)
+// are never retried when a response was received, regardless of conditions.
 func (t *retryTransport) shouldRetry(req *http.Request, resp *http.Response, err error) bool {
 	for _, cond := range t.opts.conditions {
-		if cond(resp, err) {
-			// For non-idempotent methods, only retry on network errors — never
-			// on HTTP status codes, to avoid double-processing side effects.
-			if resp != nil {
-				switch req.Method {
-				case http.MethodGet, http.MethodHead, http.MethodOptions,
-					http.MethodPut, http.MethodDelete:
-					return true
-				default:
-					return false
-				}
-			}
-
-			return true
+		if !cond(req, resp, err) {
+			continue
 		}
+
+		// Hard safety gate: if the server responded (resp != nil), never retry
+		// POST or PATCH — a response means the server processed the request and
+		// retrying could duplicate side effects (payments, emails, etc.).
+		if resp != nil {
+			switch req.Method {
+			case http.MethodPost, http.MethodPatch:
+				return false
+			}
+		}
+
+		return true
 	}
 
 	return false

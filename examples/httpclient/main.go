@@ -99,7 +99,7 @@ func main() {
 		httpclient.WithRetry(
 			[]httpclient.RetryCondition{
 				// Retry on any 5xx status code
-				httpclient.RetryIf(func(resp *http.Response, err error) bool {
+				httpclient.RetryIf(func(_ *http.Request, resp *http.Response, err error) bool {
 					if err != nil {
 						return true
 					}
