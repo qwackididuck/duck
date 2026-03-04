@@ -108,5 +108,14 @@ func execute[D any](ctx context.Context, initialState StateFunc[D], data D, o op
 		state = state(ctx, data)
 	}
 
+	if err := ctx.Err(); err != nil {
+		var zero D
+
+		return execResult[D]{
+			data: zero,
+			err:  fmt.Errorf("%w: %w", ErrContextDone, err),
+		}
+	}
+
 	return execResult[D]{data: data, err: nil}
 }
