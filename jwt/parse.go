@@ -68,3 +68,11 @@ func parse[C any](tokenStr string, provider KeyProvider, out *C) error {
 
 	return errors.New("no verification key matched")
 }
+
+func validateClaims(claims any) error {
+	if v, ok := claims.(josejwt.Claims); ok {
+		return v.Validate(josejwt.Expected{})
+	}
+
+	return nil
+}

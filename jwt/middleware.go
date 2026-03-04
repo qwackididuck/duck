@@ -70,6 +70,12 @@ func Middleware[C any](provider KeyProvider, opts ...MiddlewareOption) func(http
 				return
 			}
 
+			if err := validateClaims(claims); err != nil {
+				http.Error(w, "invalid claims: "+err.Error(), http.StatusUnauthorized)
+
+				return
+			}
+
 			next.ServeHTTP(w, r.WithContext(contextWithClaims(r.Context(), claims)))
 		})
 	}
