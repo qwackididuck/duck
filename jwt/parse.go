@@ -18,14 +18,24 @@ func jwtSigned(sig jose.Signer, claims any) (string, error) {
 // parse parses and verifies a JWT token string, extracting claims into out.
 // It tries each VerificationKey from the provider in order — useful for key
 // rotation where multiple valid keys may exist simultaneously.
+//
+// Two-phase algorithm enforcement (go-jose v4 requirement):
+//  1. ParseSigned receives the union of all accepted algorithms so go-jose can
+//     parse the header without rejecting it upfront.
+//  2. During verification each key is only tried if its own Algorithms list
+//     contains the token's actual alg header — an empty Algorithms list means
+//     "accept any algorithm" for that key.
+//
+//nolint:cyclop
 func parse[C any](tokenStr string, provider KeyProvider, out *C) error {
 	verKeys, err := provider.VerificationKeys()
 	if err != nil {
 		return fmt.Errorf("get verification keys: %w", err)
 	}
 
-	// Collect all accepted algorithms across all keys to pass to ParseSigned.
-	// go-jose v4 requires explicit algorithm allowlist to prevent confusion attacks.
+	// Phase 1 — build the union allowlist for ParseSigned.
+	// go-jose v4 rejects tokens whose alg is not in this list before we even
+	// reach signature verification.
 	algSet := map[Algorithm]struct{}{}
 
 	for _, vk := range verKeys {
@@ -44,10 +54,24 @@ func parse[C any](tokenStr string, provider KeyProvider, out *C) error {
 		return fmt.Errorf("parse token: %w", err)
 	}
 
-	// Try each key — the first one that verifies the signature wins.
+	// Extract the algorithm declared in the token header.
+	// tok.Headers contains one entry per signature — we only issue single-sig tokens.
+	if len(tok.Headers) == 0 {
+		return errors.New("token has no headers")
+	}
+
+	tokenAlg := Algorithm(tok.Headers[0].Algorithm)
+
+	// Phase 2 — per-key verification with per-key algorithm enforcement.
+	// Skip any key whose Algorithms list is non-empty and does not contain the
+	// token's alg. An empty list means the key accepts any algorithm.
 	var lastErr error
 
 	for _, vk := range verKeys {
+		if !vk.allowsAlgorithm(tokenAlg) {
+			continue
+		}
+
 		raw := json.RawMessage{}
 		if err := tok.Claims(vk.Key, &raw); err != nil {
 			lastErr = err

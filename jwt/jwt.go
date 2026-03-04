@@ -30,6 +30,8 @@
 package jwt
 
 import (
+	"slices"
+
 	"github.com/go-jose/go-jose/v4"
 )
 
@@ -74,4 +76,18 @@ type KeyProvider interface {
 type VerificationKey struct {
 	Key        any
 	Algorithms []Algorithm
+}
+
+// allowsAlgorithm reports whether this key may be used to verify a token
+// signed with alg. An empty Algorithms list means "accept any algorithm".
+func (vk VerificationKey) allowsAlgorithm(alg Algorithm) bool {
+	if len(vk.Algorithms) == 0 {
+		return true
+	}
+
+	if slices.Contains(vk.Algorithms, alg) {
+		return true
+	}
+
+	return false
 }
