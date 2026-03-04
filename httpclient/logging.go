@@ -197,12 +197,20 @@ func readAndRestoreClientBody(req *http.Request, maxBytes int64) (string, error)
 		return "", nil
 	}
 
-	data, err := io.ReadAll(io.LimitReader(req.Body, maxBytes))
+	original := req.Body
+
+	data, err := io.ReadAll(io.LimitReader(original, maxBytes))
 	if err != nil {
 		return "", err
 	}
 
-	req.Body = io.NopCloser(bytes.NewReader(data))
+	req.Body = struct {
+		io.Reader
+		io.Closer
+	}{
+		Reader: io.MultiReader(bytes.NewReader(data), original),
+		Closer: original,
+	}
 
 	return string(data), nil
 }
@@ -213,12 +221,20 @@ func readAndRestoreResponseBody(resp *http.Response, maxBytes int64) (string, er
 		return "", nil
 	}
 
-	data, err := io.ReadAll(io.LimitReader(resp.Body, maxBytes))
+	original := resp.Body
+
+	data, err := io.ReadAll(io.LimitReader(original, maxBytes))
 	if err != nil {
 		return "", err
 	}
 
-	resp.Body = io.NopCloser(bytes.NewReader(data))
+	resp.Body = struct {
+		io.Reader
+		io.Closer
+	}{
+		Reader: io.MultiReader(bytes.NewReader(data), original),
+		Closer: original,
+	}
 
 	return string(data), nil
 }
