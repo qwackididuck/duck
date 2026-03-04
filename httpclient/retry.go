@@ -30,6 +30,10 @@ type RetryOption func(*retryOptions)
 // Defaults to 3.
 func WithMaxAttempts(n int) RetryOption {
 	return func(o *retryOptions) {
+		if n < 1 {
+			n = 1
+		}
+
 		o.maxAttempts = n
 	}
 }
