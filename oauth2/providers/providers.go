@@ -44,7 +44,7 @@ func (g *googleProvider) Identity(ctx context.Context, token *goauth2.Token) (oa
 
 	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
 
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec // G704: URL is hardcoded, not user-controlled
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return oauth2.Identity{}, fmt.Errorf("google: userinfo request: %w", err)
 	}
@@ -106,7 +106,7 @@ func (g *githubProvider) Identity(ctx context.Context, token *goauth2.Token) (oa
 	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
 	req.Header.Set("Accept", "application/vnd.github+json")
 
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec // G704: URL is hardcoded, not user-controlled
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return oauth2.Identity{}, fmt.Errorf("github: user request: %w", err)
 	}

@@ -37,7 +37,7 @@ func NewServer(opts ...Option) (*Server, error) {
 		return nil, fmt.Errorf("invalid server options: %w", err)
 	}
 
-	appCtx, cancelApp := context.WithCancel(o.baseCtx)
+	appCtx, cancelApp := context.WithCancel(o.baseCtx) //nolint:gosec  // cancelApp is called elswhere.
 
 	return &Server{
 		httpServer: &http.Server{

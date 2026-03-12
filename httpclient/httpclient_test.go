@@ -127,7 +127,7 @@ func TestRetry(t *testing.T) {
 
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, srv.URL, http.NoBody)
 
-			resp, err := client.Do(req) //nolint:gosec // G704: srv.URL is always localhost from httptest.NewServer
+			resp, err := client.Do(req)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -165,7 +165,7 @@ func TestRetry_contextCancellation(t *testing.T) {
 
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, srv.URL, http.NoBody)
 
-	_, err := client.Do(req) //nolint:gosec // G704: srv.URL is always localhost from httptest.NewServer
+	_, err := client.Do(req)
 	if err == nil {
 		t.Fatal("expected error from context cancellation, got nil")
 	}
@@ -193,7 +193,7 @@ func TestRetry_nonIdempotentMethodNotRetried(t *testing.T) {
 	body := strings.NewReader(`{"name":"alice"}`)
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, srv.URL, body)
 
-	resp, err := client.Do(req) //nolint:gosec // G704: srv.URL is always localhost from httptest.NewServer
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -256,7 +256,7 @@ func TestLogging_outgoingRequest(t *testing.T) {
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, srv.URL, body)
 			req.Header.Set("Authorization", "Bearer secret")
 
-			resp, err := client.Do(req) //nolint:gosec // G704: srv.URL is always localhost from httptest.NewServer
+			resp, err := client.Do(req)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -300,7 +300,7 @@ func TestLogging_requestIDPropagation(t *testing.T) {
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, srv.URL, http.NoBody)
 	req.Header.Set("X-Request-Id", "test-request-id-123")
 
-	resp, err := client.Do(req) //nolint:gosec // G704: srv.URL is always localhost from httptest.NewServer
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

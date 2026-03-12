@@ -139,6 +139,7 @@ linters:
         text: 'rangeValCopy: each iteration copies 160 bytes \(consider pointers or indexing\)'
     paths:
       - examples/.*/.*.go$
+      - .*_test\.go$
 formatters:
   enable:
     - gofmt

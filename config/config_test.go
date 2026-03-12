@@ -38,7 +38,7 @@ type typedConfig struct {
 	Debug   bool          `duck:"default=false" env:"DEBUG"`
 	Timeout time.Duration `duck:"default=30s"   env:"TIMEOUT"`
 	Rate    float64       `duck:"default=1.5"   env:"RATE"`
-	Secret  []byte        `duck:"required"      env:"SECRET"` //nolint:gosec
+	Secret  []byte        `duck:"required"      env:"SECRET"`
 	Workers uint          `duck:"default=4"     env:"WORKERS"`
 }
 
@@ -286,7 +286,7 @@ func TestLoad_panicBehavior(t *testing.T) {
 			setupEnv: func(_ *testing.T) {},
 			load: func() error {
 				type panicConfig struct {
-					Secret string `duck:"required,panic" env:"PANIC_SECRET"` //nolint:gosec
+					Secret string `duck:"required,panic" env:"PANIC_SECRET"`
 				}
 
 				_, err := config.Load[panicConfig](config.WithEnv())

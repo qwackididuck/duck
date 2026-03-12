@@ -132,7 +132,7 @@ func (p *jwksProvider) refresh() error {
 		return fmt.Errorf("create request: %w", err)
 	}
 
-	resp, err := p.opts.httpClient.Do(req) //nolint:gosec // G704: URL is provided by the operator at construction time, not by end users
+	resp, err := p.opts.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("fetch: %w", err)
 	}
