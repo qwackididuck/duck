@@ -281,24 +281,15 @@ Generic configuration loader powered by Go generics. Resolves values from enviro
 import "github.com/qwackididuck/duck/config"
 
 type Config struct {
-    Addr            string        `duck:"env=ADDR,default=:8080"`
-    LogLevel        string        `duck:"env=LOG_LEVEL,default=info"`
-    ShutdownTimeout time.Duration `duck:"env=SHUTDOWN_TIMEOUT,default=30s"`
+    Addr            string        `duck:"default=:8080"  env:"ADDR"`
+    LogLevel        string        `duck:"default=info"   env:"LOG_LEVEL"`
+    ShutdownTimeout time.Duration `duck:"default=30s"    env:"SHUTDOWN_TIMEOUT"`
 
     // required — Load returns an error if the variable is not set
-    DatabaseURL string `duck:"env=DATABASE_URL,required"`
+    DatabaseURL string `duck:"required" env:"DATABASE_URL"`
 
     // comma-separated from env:  ALLOWED_ORIGINS=https://a.com,https://b.com
-    AllowedOrigins []string `duck:"env=ALLOWED_ORIGINS,sep=,"`
-
-    // nested struct — fields resolved independently
-    Redis RedisConfig
-}
-
-type RedisConfig struct {
-    Addr     string `duck:"env=REDIS_ADDR,default=localhost:6379"`
-    Password string `duck:"env=REDIS_PASSWORD"`
-    DB       int    `duck:"env=REDIS_DB,default=0"`
+    AllowedOrigins []string `duck:"sep=," env:"ALLOWED_ORIGINS"`
 }
 ```
 

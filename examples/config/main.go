@@ -13,28 +13,22 @@ import (
 // Duck tags control how each field is resolved.
 type AppConfig struct {
 	// Loaded from ADDR env var, defaults to :8080
-	Addr string `duck:"env=ADDR,default=:8080"`
+	Addr string `duck:"default=:8080" env:"ADDR"`
 
 	// Loaded from LOG_LEVEL env var, defaults to info
-	LogLevel string `duck:"env=LOG_LEVEL,default=info"`
+	LogLevel string `duck:"default=info" env:"LOG_LEVEL"`
 
 	// Loaded from SHUTDOWN_TIMEOUT env var, duration parsing included
-	ShutdownTimeout time.Duration `duck:"env=SHUTDOWN_TIMEOUT,default=30s"`
+	ShutdownTimeout time.Duration `duck:"default=30s" env:"SHUTDOWN_TIMEOUT"`
 
 	// Required — Load returns an error if DATABASE_URL is not set
-	DatabaseURL string `duck:"env=DATABASE_URL,required"`
+	DatabaseURL string `duck:"required" env:"DATABASE_URL"`
 
 	// Comma-separated list from env: TAGS=api,backend,v2
-	Tags []string `duck:"env=TAGS,sep=,"`
+	Tags []string `duck:"sep=," env:"TAGS"`
 
-	// Nested struct — fields resolved independently
-	Redis RedisConfig
-}
-
-type RedisConfig struct {
-	Addr     string `duck:"env=REDIS_ADDR,default=localhost:6379"`
-	Password string `duck:"env=REDIS_PASSWORD"`
-	DB       int    `duck:"env=REDIS_DB,default=0"`
+	// Redis connection string
+	RedisAddr string `duck:"default=localhost:6379" env:"REDIS_ADDR"`
 }
 
 func main() {
@@ -59,5 +53,5 @@ func main() {
 	fmt.Printf("ShutdownTimeout: %s\n", cfg.ShutdownTimeout)
 	fmt.Printf("DatabaseURL:     %s\n", cfg.DatabaseURL)
 	fmt.Printf("Tags:            %v\n", cfg.Tags)
-	fmt.Printf("Redis.Addr:      %s\n", cfg.Redis.Addr)
+	fmt.Printf("RedisAddr:       %s\n", cfg.RedisAddr)
 }
